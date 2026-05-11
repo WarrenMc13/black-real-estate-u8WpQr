@@ -1,32 +1,31 @@
-import { prisma } from '@/lib/db';
-import { type NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
 
-export async function GET() {
+type CreateLeadRequestBody = {
+  name: string;
+  email: string;
+  message: string;
+};
+
+export async function POST(req: Request) {
   try {
-    const leads = await prisma.lead.findMany({
-      include: { property: true }
-    });
-    return NextResponse.json(leads);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch leads' }, { status: 500 });
-  }
-}
+    const body: CreateLeadRequestBody | null = await req.json();
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { name, email, message, propertyId } = body;
-
-    if (!name || !email || !message) {
+    if (!body || !body.name || !body.email || !body.message) {
       return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
     }
 
     const lead = await prisma.lead.create({
-      data: { name, email, message, propertyId }
+      data: {
+        name: body.name,
+        email: body.email,
+        message: body.message,
+      },
     });
 
-    return NextResponse.json(lead, { status: 201 });
+    return NextResponse.json(lead);
   } catch (error) {
+    console.error('Error creating lead:', error);
     return NextResponse.json({ error: 'Failed to create lead' }, { status: 500 });
   }
 }
