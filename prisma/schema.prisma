@@ -1,0 +1,27 @@
+model Property {
+  id          String   @id @default(uuid())
+  address     String
+  price       Float
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lead {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  message     String
+  propertyId  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  property    Property? @relation(fields: [propertyId], references: [id])
+}
+
+model User {
+  id        String @id @default(uuid())
+  name      String
+  email     String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
